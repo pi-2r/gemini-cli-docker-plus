@@ -1,0 +1,28 @@
+# Git
+.git
+.github
+
+# Logs
+*.log
+npm-debug.log*
+
+# Docker
+docker-compose.yml
+.dockerignore
+Dockerfile
+
+# Build scripts & Config
+Makefile
+build.yaml
+test.sh
+README-TEMPLATE.md
+
+# IDEs
+.idea
+.vscode
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db

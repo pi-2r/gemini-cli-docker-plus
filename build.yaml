@@ -1,0 +1,32 @@
+---
+
+prefix: ptherrode
+maintainer: Pierre <https://github.com/pi-2r>
+
+labels:
+  org.opencontainers.image.licenses: GPL-2.0-only
+  org.opencontainers.image.url: https://github.com/pi-2r/gemini-cli-docker-plus
+  org.opencontainers.image.documentation: https://github.com/pi-2r/gemini-cli-docker-plus/blob/master/README.md
+  org.opencontainers.image.title: Weekly updated Google Gemini CLI Docker image
+  org.opencontainers.image.description: |
+    Those images are just standard Gemini CLI base images, but:
+
+    1. Updated weekly for security.
+    2. Optimized for smaller size.
+
+platforms:
+  - linux/arm/v7
+  - linux/amd64
+  - linux/arm64
+
+images:
+  gemini-cli:
+    dockerfile: Dockerfile
+    args:
+      GEMINI_CLI_VERSION: "{{ env \"GEMINI_CLI_VERSION\" | default \"latest\" }}"
+    tags:
+      - gemini-cli:build-v{{ .tag }}
+      - gemini-cli:v{{ env "GEMINI_CLI_VERSION" }}
+      - gemini-cli:v{{ env "GEMINI_CLI_VERSION" | splitList "." | first }}
+      - gemini-cli:v{{ env "GEMINI_CLI_VERSION" | splitList "." | first }}.{{ env "GEMINI_CLI_VERSION" | splitList "." | rest | first }}
+      - gemini-cli:latest
