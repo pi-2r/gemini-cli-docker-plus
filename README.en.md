@@ -1,5 +1,7 @@
 # Gemini CLI in Docker
 
+![Gemini CLI Screenshot](./images/gemini-docker.png)
+
 A convenient and isolated way to run the [Gemini CLI](https://github.com/google-gemini/gemini-cli) without needing to install Node.js or its dependencies on your local system. This repository provides automatically updated Docker images.
 
 ![GitHub](https://img.shields.io/github/license/pi-2r/gemini-cli-docker-plus)
