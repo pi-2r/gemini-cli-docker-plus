@@ -1,5 +1,6 @@
 # Gemini CLI dans Docker
 
+
 Une façon pratique et isolée d'exécuter le [Gemini CLI](https://github.com/google-gemini/gemini-cli) sans avoir à installer Node.js ou ses dépendances sur votre système local. Ce dépôt fournit des images Docker mises à jour automatiquement.
 
 ![GitHub](https://img.shields.io/github/license/pi-2r/gemini-cli-docker-plus)
@@ -51,6 +52,11 @@ Cette configuration :
 - La configuration fonctionne de la même manière.
 - Les permissions de fichiers peuvent se comporter différemment en raison de la gestion des montages par Docker Desktop sur macOS.
 - Si vous rencontrez des problèmes de permission, vous devrez peut-être ajouter `:delegated` aux montages de volume pour de meilleures performances.
+
+**Problème `adduser: unknown group gemini`** :
+- **L'explication** : Sur macOS, votre identifiant de groupe (GID) est souvent 20 (le groupe "staff"). Le script à l'intérieur du conteneur Docker (qui tourne sous Linux) essaie de créer un groupe nommé gemini avec cet ID 20. Or, dans Linux, l'ID 20 est souvent déjà pris par un groupe système (comme dialout). Le script échoue donc car il ne peut pas créer le groupe.
+- **La solution** : Sur macOS, grâce à la façon dont Docker gère les fichiers, nous n'avons pas vraiment besoin que l'ID corresponde exactement. Nous allons "mentir" au conteneur en lui donnant un ID standard (1000) pour qu'il soit content.
+    - Modifiez votre fonction dans `.bashrc` ou `.zshrc` : Remplacez la ligne `-e DEFAULT_GID=$(id -g)` par `-e DEFAULT_GID=1000`.
 
 **Windows (PowerShell) :**
 Ajoutez cette fonction à votre profil PowerShell (généralement `$PROFILE`) :

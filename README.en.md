@@ -54,6 +54,11 @@ This setup:
 - The setup works the same way
 - File permissions might behave differently due to how Docker Desktop handles mounting on macOS
 - If you experience permission issues, you may need to add `:delegated` to volume mounts for better performance
+                                                                                
+**Issue `adduser: unknown group gemini`**:
+- **Explanation**: On macOS, your group ID (GID) is often 20 (the "staff" group). The script inside the Docker container (running Linux) tries to create a group named gemini with this ID 20. However, in Linux, ID 20 is often already taken by a system group (like dialout). The script fails because it cannot create the group.
+- **Solution**: On macOS, thanks to how Docker handles files, we don't strictly need the ID to match exactly. We can "lie" to the container by giving it a standard ID (1000) to keep it happy.
+    - Modify your function in `.bashrc` or `.zshrc`: Replace the line `-e DEFAULT_GID=$(id -g)` with `-e DEFAULT_GID=1000`.
 
 **Windows (PowerShell):**
 Add this function to your PowerShell profile (usually `Result of $PROFILE`):
