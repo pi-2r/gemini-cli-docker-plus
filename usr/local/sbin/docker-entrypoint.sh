@@ -1,24 +1,17 @@
-#!/bin/sh
+#!/bin/bash
 
 set -eu
 
-UID=${DEFAULT_UID:-1000}
-GID=${DEFAULT_GID:-1000}
+USER_ID=${DEFAULT_UID:-1000}
+GROUP_ID=${DEFAULT_GID:-1000}
 USER=${DEFAULT_USERNAME:-gemini}
 HOME=${DEFAULT_HOME_DIR:-/home/$USER}
 
-if [ "$DEBUG" == "true" ]; then
-    echo "Creating unprivileged user matching system user..."
-    echo "  Name:     $USER"
-    echo "  UID:      $UID"
-    echo "  GID:      $GID"
-    echo "  Home dir: $HOME"
-fi
-
 # create group if it doesn't exist
-getent group $GID 2>&1 > /dev/null || addgroup -g $GID $USER
+getent group $GROUP_ID 2>&1 > /dev/null || groupadd -g $GROUP_ID $USER > /dev/null 2>&1
 
 # create user if it doesn't exist
-getent passwd $UID 2>&1 > /dev/null || adduser -D -h "$HOME" -u $UID -G $USER $USER
+# Note: We use useradd (Debian) instead of adduser (Alpine)
+getent passwd $USER_ID 2>&1 > /dev/null || useradd -m -d "$HOME" -u $USER_ID -g $GROUP_ID -s /bin/bash $USER > /dev/null 2>&1
 
-exec su-exec "${UID}:${GID}" "$@"
+exec gosu "${USER_ID}:${GROUP_ID}" "$@"

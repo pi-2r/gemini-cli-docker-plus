@@ -1,31 +1,39 @@
-FROM alpine:3.23
+FROM node:22-slim
 
 # set some defaults
 ENV DEBUG=false
 
-VOLUME /tmp /var/cache/apk /var/tmp /root/.cache /root/.npm
+# Install dependencies (Debian/Ubuntu)
+RUN apt-get update && apt-get install -y \
+    gosu \
+    bubblewrap \
+    git \
+    python3 \
+    build-essential \
+    && rm -rf /var/lib/apt/lists/*
+
+# Remove default node user to avoid UID 1000 conflict if we want to remap it
+RUN userdel -r node || true
 
 # Setup unprivileged user defaults
 COPY usr/ /usr/
-RUN apk upgrade --no-cache && \
-    apk add --no-cache su-exec && \
-    chmod +x /usr/local/sbin/docker-entrypoint.sh
+RUN chmod +x /usr/local/sbin/docker-entrypoint.sh
 
-# Install Gemini CLI
+# Install Gemini CLI and Wrapper
 ARG GEMINI_CLI_VERSION="latest"
-ARG TARGETPLATFORM
-RUN apk add --no-cache nodejs npm && \
 
-    if [ "$TARGETPLATFORM" != "linux/amd64" ]; then \
-        apk add --no-cache python3 py3-pip build-base git; \
-    fi && \
-    npm install -g @google/gemini-cli@${GEMINI_CLI_VERSION} && \
+WORKDIR /app
+COPY package.json tsconfig.json ./
+COPY src/ src/
+
+RUN npm install -g @google/gemini-cli@${GEMINI_CLI_VERSION} && \
+    # Install wrapper dependencies and build
+    npm install && \
+    npm run build && \
+    # Cleanup
+    npm prune --production && \
     rm -rf ~/.npm && \
-    apk del --no-cache npm && \
-    if [ "$TARGETPLATFORM" != "linux/amd64" ]; then \
-        apk del --no-cache python3 py3-pip build-base git; \
-    fi && \
     gemini --version
 
 WORKDIR /home/gemini/workspace
-ENTRYPOINT ["/usr/local/sbin/docker-entrypoint.sh", "gemini"]
+ENTRYPOINT ["/usr/local/sbin/docker-entrypoint.sh", "node", "/app/dist/index.js"]
