@@ -14,4 +14,8 @@ getent group $GROUP_ID 2>&1 > /dev/null || groupadd -g $GROUP_ID $USER > /dev/nu
 # Note: We use useradd (Debian) instead of adduser (Alpine)
 getent passwd $USER_ID 2>&1 > /dev/null || useradd -m -d "$HOME" -u $USER_ID -g $GROUP_ID -s /bin/bash $USER > /dev/null 2>&1
 
+# Ensure .npm directory exists and is owned by the user
+mkdir -p "$HOME/.npm"
+chown "$USER_ID:$GROUP_ID" "$HOME/.npm"
+
 exec gosu "${USER_ID}:${GROUP_ID}" "$@"
